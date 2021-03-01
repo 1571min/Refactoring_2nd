@@ -1,7 +1,6 @@
 import { Invoice, PerformanceT, Play, Plays } from '../types/chapter1.type'
 
 export const statementAfter = (invoice: Invoice, plays: Plays): string => {
-  let totalAmount = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
 
   // 임시 변수를 함수로 바꾸고 함수명 의미에 맞게 rename
@@ -15,59 +14,64 @@ export const statementAfter = (invoice: Invoice, plays: Plays): string => {
 
   // 임시 변수를 질의 함수로 바꾸기
   const playFor = (perf: PerformanceT): Play => {
-    const play = plays[perf.playID]
-    return play
+    return plays[perf.playID]
   }
 
   // 함수 추출 하기
   const amountFor = (aPerformance: PerformanceT) => {
-    let thisAmount = 0
+    let result = 0
     switch (playFor(aPerformance).type) {
       case 'tragedy':
-        thisAmount = 40000
+        result = 40000
         if (aPerformance.audience > 30) {
-          thisAmount += 1000 * (aPerformance.audience - 30)
+          result += 1000 * (aPerformance.audience - 30)
         }
         break
       case 'comedy':
-        thisAmount = 30000
+        result = 30000
         if (aPerformance.audience > 20) {
-          thisAmount += 10000 + 500 * (aPerformance.audience - 20)
+          result += 10000 + 500 * (aPerformance.audience - 20)
         }
-        thisAmount += 300 * aPerformance.audience
+        result += 300 * aPerformance.audience
         break
       default:
         throw new Error(`알 수 없는 장르:  ${playFor(aPerformance).type}`)
     }
-    return thisAmount
+    return result
   }
 
   // 계산 코드 추출 하기
   const volumeCreditsFor = (perf: PerformanceT): number => {
-    let volumeCredits = 0
-    volumeCredits += Math.max(perf.audience - 30, 0)
+    let result = 0
+    result += Math.max(perf.audience - 30, 0)
     // 희극 관객 5명마다 추가 포인트를 제공한다.
-    if ('comedy' == playFor(perf).type) volumeCredits += Math.floor(perf.audience / 5)
-    return volumeCredits
+    if ('comedy' == playFor(perf).type) result += Math.floor(perf.audience / 5)
+    return result
   }
 
   // 반복문 쪼개기 후 함수로 추출
   const totalVolumeCredit = () => {
-    let volumeCredits = 0
+    let result = 0
     for (const perf of invoice.performances) {
       // 포인트를 적립한다.
-      volumeCredits += volumeCreditsFor(perf)
+      result += volumeCreditsFor(perf)
     }
-    return volumeCredits
+    return result
+  }
+  const totalAmount = () => {
+    let result = 0
+    for (const perf of invoice.performances) {
+      result += amountFor(perf)
+    }
+    return result
   }
 
   for (const perf of invoice.performances) {
     // 청구 내역을 출력한다
     result += ` * ${playFor(perf).name}: ${usd(amountFor(perf))}(${perf.audience}석)\n`
-    totalAmount += amountFor(perf)
   }
 
-  result += `총액: ${usd(totalAmount)}\n`
+  result += `총액: ${usd(totalAmount())}\n`
   result += `적립 포인트: ${totalVolumeCredit()} 점\n`
 
   return result
