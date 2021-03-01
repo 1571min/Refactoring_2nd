@@ -9,7 +9,7 @@ const plays = plainToClass(Plays, playsDummy)
 const invoice = plainToClass(Invoice, invoicesDummy[0])
 
 test('refactoring success', () => {
-  const after = statementAfter(invoice)
+  const after = statementAfter(invoice, plays)
   const before = statementBefore(invoice, plays)
   expect(after).toBe(before)
 })
