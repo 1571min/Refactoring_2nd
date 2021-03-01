@@ -1,8 +1,6 @@
 import { Invoice, PerformanceT, Play, Plays } from '../types/chapter1.type'
 
 export const statementAfter = (invoice: Invoice, plays: Plays): string => {
-  let result = `청구 내역 (고객명: ${invoice.customer})\n`
-
   // 임시 변수를 함수로 바꾸고 함수명 의미에 맞게 rename
   const usd = (aNumber: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -66,6 +64,7 @@ export const statementAfter = (invoice: Invoice, plays: Plays): string => {
     return result
   }
 
+  let result = `청구 내역 (고객명: ${invoice.customer})\n`
   for (const perf of invoice.performances) {
     // 청구 내역을 출력한다
     result += ` * ${playFor(perf).name}: ${usd(amountFor(perf))}(${perf.audience}석)\n`
