@@ -1,34 +1,7 @@
 import { Invoice, PerformanceT, Play, Plays } from '../types/chapter1.type'
-type Statement = {
-  totalVolumeCredits: number
-  totalAmount: number
-  customer: string
-  performances: PerformanceT[]
-}
+import { Statement } from './statement'
 
-const renderPlainText = (data: Statement) => {
-  // 임시 변수를 함수로 바꾸고 함수명 의미에 맞게 rename
-  const usd = (aNumber: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2
-    }).format(aNumber / 100)
-  }
-
-  let result = `청구 내역 (고객명: ${data.customer})\n`
-  for (const perf of data.performances) {
-    // 청구 내역을 출력한다
-    result += ` * ${perf.play.name}: ${usd(perf.amount)}(${perf.audience}석)\n`
-  }
-
-  result += `총액: ${usd(data.totalAmount)}\n`
-  result += `적립 포인트: ${data.totalVolumeCredits} 점\n`
-
-  return result
-}
-
-export const statement = (invoice: Invoice, plays: Plays): string => {
+export default (invoice: Invoice, plays: Plays) => {
   // 계산 단계 분리를 위한 계층 쪼개기
   const playFor = (perf: PerformanceT): Play => {
     return plays[perf.playID]
@@ -81,10 +54,11 @@ export const statement = (invoice: Invoice, plays: Plays): string => {
     return data.performances.reduce((total, p) => total + p.amount, 0)
   }
 
-  const statementData = {} as Statement
-  statementData.customer = invoice.customer
-  statementData.performances = invoice.performances.map(enrichPerformance)
-  statementData.totalAmount = totalAmount(statementData)
-  statementData.totalVolumeCredits = totalVolumeCredits(statementData)
-  return renderPlainText(statementData)
+  const result = {} as Statement
+  result.customer = invoice.customer
+  result.performances = invoice.performances.map(enrichPerformance)
+  result.totalAmount = totalAmount(result)
+  result.totalVolumeCredits = totalVolumeCredits(result)
+
+  return result
 }

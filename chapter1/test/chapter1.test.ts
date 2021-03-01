@@ -4,7 +4,7 @@ import { Invoice, Plays } from '../types/chapter1.type'
 import { plainToClass } from 'class-transformer'
 import playsDummy from '../plays.json'
 import invoicesDummy from '../invoices.json'
-import { statement } from '../after_implement_html'
+import { htmlStatement, statement } from '../after_implement_html/statement'
 
 const plays = plainToClass(Plays, playsDummy)
 const invoice = plainToClass(Invoice, invoicesDummy[0])
