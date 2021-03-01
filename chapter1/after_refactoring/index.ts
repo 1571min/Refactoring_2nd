@@ -2,10 +2,9 @@ import { Invoice, PerformanceT, Play, Plays } from '../types/chapter1.type'
 
 export const statementAfter = (invoice: Invoice, plays: Plays): string => {
   let totalAmount = 0
-  let volumeCredits = 0
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
 
-  // 임시 변수를 함수로 바꾸기
+  // 임시 변수를 함수로 바꾸고 함수명 의미에 맞게 rename
   const usd = (aNumber: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -52,15 +51,24 @@ export const statementAfter = (invoice: Invoice, plays: Plays): string => {
     return volumeCredits
   }
 
+  // 반복문 쪼개기 후 함수로 추출
+  const totalVolumeCredit = () => {
+    let volumeCredits = 0
+    for (const perf of invoice.performances) {
+      // 포인트를 적립한다.
+      volumeCredits += volumeCreditsFor(perf)
+    }
+    return volumeCredits
+  }
+
   for (const perf of invoice.performances) {
-    // 포인트를 적립한다.
-    volumeCredits += volumeCreditsFor(perf)
     // 청구 내역을 출력한다
     result += ` * ${playFor(perf).name}: ${usd(amountFor(perf))}(${perf.audience}석)\n`
     totalAmount += amountFor(perf)
   }
+
   result += `총액: ${usd(totalAmount)}\n`
-  result += `적립 포인트: ${volumeCredits} 점\n`
+  result += `적립 포인트: ${totalVolumeCredit()} 점\n`
 
   return result
 }
