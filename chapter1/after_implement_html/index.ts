@@ -74,20 +74,11 @@ export const statement = (invoice: Invoice, plays: Plays): string => {
   }
 
   const totalVolumeCredits = (data: Statement) => {
-    let result = 0
-    for (const perf of data.performances) {
-      // 포인트를 적립한다.
-      result += perf.volumeCredits
-    }
-    return result
+    return data.performances.reduce((total, p) => total + p.volumeCredits, 0)
   }
 
   const totalAmount = (data: Statement) => {
-    let result = 0
-    for (const perf of data.performances) {
-      result += perf.amount
-    }
-    return result
+    return data.performances.reduce((total, p) => total + p.amount, 0)
   }
 
   const statementData = {} as Statement
