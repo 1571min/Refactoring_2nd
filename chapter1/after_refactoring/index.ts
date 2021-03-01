@@ -6,12 +6,12 @@ export const statementAfter = (invoice: Invoice, plays: Plays): string => {
   let result = `청구 내역 (고객명: ${invoice.customer})\n`
 
   // 임시 변수를 함수로 바꾸기
-  const format = (aNumber: number) => {
+  const usd = (aNumber: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 2
-    }).format(aNumber)
+    }).format(aNumber / 100)
   }
 
   // 임시 변수를 질의 함수로 바꾸기
@@ -56,10 +56,10 @@ export const statementAfter = (invoice: Invoice, plays: Plays): string => {
     // 포인트를 적립한다.
     volumeCredits += volumeCreditsFor(perf)
     // 청구 내역을 출력한다
-    result += ` * ${playFor(perf).name}: ${format(amountFor(perf) / 100)}(${perf.audience}석)\n`
+    result += ` * ${playFor(perf).name}: ${usd(amountFor(perf))}(${perf.audience}석)\n`
     totalAmount += amountFor(perf)
   }
-  result += `총액: ${format(totalAmount / 100)}\n`
+  result += `총액: ${usd(totalAmount)}\n`
   result += `적립 포인트: ${volumeCredits} 점\n`
 
   return result
