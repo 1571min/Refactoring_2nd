@@ -22,6 +22,9 @@ export class PerformanceT {
   }
   playID: string
   audience: number
+  play!: Play
+  amount!: number
+  volumeCredits!: number
 }
 
 export class Invoice {
