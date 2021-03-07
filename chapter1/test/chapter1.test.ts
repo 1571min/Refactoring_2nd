@@ -1,12 +1,12 @@
-import { statementBefore } from '../before_refactoring'
-import { statementAfter } from '../after_refactoring'
+import { statementBefore } from '../before'
+import { statementAfter } from '../after_function'
 import { Invoice, Plays } from '../types/chapter1.type'
 import { plainToClass } from 'class-transformer'
 import playsDummy from '../plays.json'
 import invoicesDummy from '../invoices.json'
 import { statement } from '../after_implement_html/statement'
-import { afterPolymorphismStatement } from '../after_refactor_polymorphism/statement'
-import createStatementData from '../after_refactor_polymorphism/createStatementData'
+import { afterPolymorphismStatement } from '../after_polymorphism/statement'
+import createStatementData from '../after_polymorphism/createStatementData'
 
 const plays = plainToClass(Plays, playsDummy)
 const invoice = plainToClass(Invoice, invoicesDummy[0])
@@ -50,7 +50,7 @@ const createStatementOriginData = {
 }
 
 describe('refactoring test', () => {
-  it('refactoring 1 success', () => {
+  it('middle data format check success', () => {
     expect(createStatementData(invoice, plays)).toStrictEqual(createStatementOriginData)
   })
 
