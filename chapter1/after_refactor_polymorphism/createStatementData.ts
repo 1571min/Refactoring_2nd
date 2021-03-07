@@ -9,7 +9,7 @@ class PerformanceCalculator {
     this.play = aPlay
   }
 
-  // 함수 옮기기 후 함수 인라인
+  // amountFor 함수 옮기기 후 함수 인라인
   get amount() {
     let result = 0
     switch (this.play.type) {
@@ -31,6 +31,15 @@ class PerformanceCalculator {
     }
     return result
   }
+
+  // volumeCreditsFor 함수 옮기기 후 함수 인라인
+  get volumeCredits() {
+    let result = 0
+    result += Math.max(this.performance.audience - 30, 0)
+    // 희극 관객 5명마다 추가 포인트를 제공한다.
+    if ('comedy' == this.play.type) result += Math.floor(this.performance.audience / 5)
+    return result
+  }
 }
 
 export default (invoice: Invoice, plays: Plays) => {
@@ -39,20 +48,12 @@ export default (invoice: Invoice, plays: Plays) => {
     return plays[perf.playID]
   }
 
-  const volumeCreditsFor = (perf: PerformanceT): number => {
-    let result = 0
-    result += Math.max(perf.audience - 30, 0)
-    // 희극 관객 5명마다 추가 포인트를 제공한다.
-    if ('comedy' == perf.play.type) result += Math.floor(perf.audience / 5)
-    return result
-  }
-
   const enrichPerformance = (aPerformance: PerformanceT): PerformanceT => {
     const calculator = new PerformanceCalculator(aPerformance, playFor(aPerformance))
     const result = Object.assign({}, aPerformance) // 얕은 복사로 전달
     result.play = calculator.play
     result.amount = calculator.amount
-    result.volumeCredits = volumeCreditsFor(result)
+    result.volumeCredits = calculator.volumeCredits
     return result
   }
 
