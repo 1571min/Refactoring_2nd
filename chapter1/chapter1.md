@@ -56,5 +56,119 @@ for (const perf of invoice.performances) {
 
 이 부분에서는 비슷한 역할을 하는 부분을 하나의 단계로 처리하고 해당 단계에서 나온 중간 데이터를 다음 단계로 전달해주는 구조이다 이는 추후 하나의 단계가 여러 방식으로 응용될 수 있다는 장점이 있다
 
-### 다형성 적용
+### 조건부 로직 다형성으로 바꾸기 ([전체 코드](https://github.com/1571min/Refactoring_2nd/blob/master/chapter1/after_polymorphism/createStatementData.ts))
+어떤 조건에 따라 다르게 작동하는 로직을 객체지향을 이용해서 하나의 상위 클래스를 만들고 해당 클래스를 상속하는 여러 자식 클래스를 만들어서 조건부 로직을 대체 하는 방식이다 
+이 책에서는 조건부 처리를 위해서 팩토리 패턴을 이용해서 해당하는 타입에 따라 자식클래스 생성하는 방식으로 설계했
 
+* before
+```typescript
+  const amountFor = (aPerformance: PerformanceT): number => {
+    let result = 0
+    switch (aPerformance.play.type) {
+      case 'tragedy':
+        result = 40000
+        if (aPerformance.audience > 30) {
+          result += 1000 * (aPerformance.audience - 30)
+        }
+        break
+      case 'comedy':
+        result = 30000
+        if (aPerformance.audience > 20) {
+          result += 10000 + 500 * (aPerformance.audience - 20)
+        }
+        result += 300 * aPerformance.audience
+        break
+      default:
+        throw new Error(`알 수 없는 장르:  ${aPerformance.play.type}`)
+    }
+    return result
+  }
+
+  const volumeCreditsFor = (perf: PerformanceT): number => {
+    let result = 0
+    result += Math.max(perf.audience - 30, 0)
+    // 희극 관객 5명마다 추가 포인트를 제공한다.
+    if ('comedy' == perf.play.type) result += Math.floor(perf.audience / 5)
+    return result
+  }
+
+  const enrichPerformance = (aPerformance: PerformanceT): PerformanceT => {
+    const calculator = new PerformanceCalculator(aPerformance, playFor(aPerformance))
+    const result = Object.assign({}, aPerformance) // 얕은 복사로 전달
+    result.play = calculator.play
+    result.amount = amountFor(result)
+    result.volumeCredits = volumeCreditsFor(result)
+    return result
+  }
+```
+
+* after
+```typescript
+class PerformanceCalculator {
+  performance: PerformanceT
+  play: Play
+  constructor(aPerformance: PerformanceT, aPlay: Play) {
+    this.performance = aPerformance
+    this.play = aPlay
+  }
+
+  // amountFor 함수 옮기기 후 함수 인라인
+  get amount() {
+    return 0
+  }
+
+  // volumeCreditsFor 함수 옮기기 후 함수 인라인
+  get volumeCredits() {
+    return Math.max(this.performance.audience - 30, 0)
+  }
+}
+
+class TragedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let result = 40000
+    if (this.performance.audience > 30) {
+      result += 1000 * (this.performance.audience - 30)
+    }
+    return result
+  }
+}
+class ComedyCalculator extends PerformanceCalculator {
+  get amount() {
+    let result = 30000
+    if (this.performance.audience > 20) {
+      result += 10000 + 500 * (this.performance.audience - 20)
+    }
+    return (result += 300 * this.performance.audience)
+  }
+
+  get volumeCredits() {
+    // 희극 관객 5명마다 추가 포인트를 제공한다.
+    return super.volumeCredits + Math.floor(this.performance.audience / 5)
+  }
+}
+
+const createPerformanceCalculator = (aPerformance: PerformanceT, aPlay: Play) => {
+  switch (aPlay.type) {
+    case 'tragedy':
+      return new TragedyCalculator(aPerformance, aPlay)
+    case 'comedy':
+      return new ComedyCalculator(aPerformance, aPlay)
+    default:
+      throw new Error(`알 수 없는 장르: ${aPlay.type}`)
+  }
+}
+
+const enrichPerformance = (aPerformance: PerformanceT): PerformanceT => {
+  const calculator = createPerformanceCalculator(aPerformance, playFor(aPerformance))
+  const result = Object.assign({}, aPerformance) // 얕은 복사로 전달
+  result.play = calculator.play
+  result.amount = calculator.amount
+  result.volumeCredits = calculator.volumeCredits
+  return result
+}
+```
+
+
+### 좋은 코드란?
+좋은 코드에 대한 기준에 대해 개인적인 미적인 취향은 존재 할 수 있고 이는 누구나 다를 수 있지만 취향을 넘어선 관점이
+존재한다 그것은 `수정하기 쉬운 정도` 를 기준으로 하는 것이다 
