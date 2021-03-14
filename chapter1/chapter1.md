@@ -58,7 +58,7 @@ for (const perf of invoice.performances) {
 
 ### 조건부 로직 다형성으로 바꾸기 ([전체 코드](https://github.com/1571min/Refactoring_2nd/blob/master/chapter1/after_polymorphism/createStatementData.ts))
 어떤 조건에 따라 다르게 작동하는 로직을 객체지향을 이용해서 하나의 상위 클래스를 만들고 해당 클래스를 상속하는 여러 자식 클래스를 만들어서 조건부 로직을 대체 하는 방식이다 
-이 책에서는 조건부 처리를 위해서 팩토리 패턴을 이용해서 해당하는 타입에 따라 자식클래스 생성하는 방식으로 설계했
+이 책에서는 조건부 처리를 위해서 팩토리 패턴을 이용해서 해당하는 타입에 따라 자식클래스 생성하는 방식으로 설계했다
 
 * before
 ```typescript
