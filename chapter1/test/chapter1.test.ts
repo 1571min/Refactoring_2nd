@@ -50,7 +50,7 @@ const createStatementOriginData = {
 }
 
 describe('refactoring test', () => {
-  it('middle data format check success', () => {
+  it('middle data format check1 success', () => {
     expect(createStatementData(invoice, plays)).toStrictEqual(createStatementOriginData)
   })
 
